@@ -1,1 +1,1 @@
-include!(concat!(env!("CARGO_MANIFEST_DIR"), "/derive_display.rs"));
+include_proc_macro!("derive_display");

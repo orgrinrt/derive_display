@@ -7,6 +7,9 @@ edition = "2021"
 [lib]
 proc-macro = true
 
+[dev-dependencies]
+include_proc_macro = { git = "https://github.com/orgrinrt/include_proc_macro.git" }
+
 [dependencies]
 syn = { version = "2.0.52", features = ["full", "extra-traits"] }
 quote = "1.0.9"
