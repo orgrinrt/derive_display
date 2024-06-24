@@ -5,7 +5,7 @@ derive_display
 [![GitHub Stars](https://img.shields.io/github/stars/orgrinrt/derive_display.svg)](https://github.com/orgrinrt/derive_display/stargazers)
 [![Crates.io Total Downloads](https://img.shields.io/crates/d/derive_display)](https://crates.io/crates/derive_display)
 [![GitHub Issues](https://img.shields.io/github/issues/orgrinrt/derive_display.svg)](https://github.com/orgrinrt/derive_display/issues)
-[![Current Version](https://img.shields.io/badge/version-0.0.1-red.svg)](https://github.com/orgrinrt/derive_display)
+[![Current Version](https://img.shields.io/badge/version-0.0.2-red.svg)](https://github.com/orgrinrt/derive_display)
 
 > A convenient attribute to derive `Display` implementation from another implementation. Currently supports `ToTokens`.
 
