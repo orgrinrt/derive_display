@@ -1,23 +1,29 @@
 [package]
 name = "derive_display"
 authors = ["orgrinrt", "Hiisi Digital"]
-version = "0.1.0"
+version = "0.0.1"
 edition = "2021"
+description = """
+A convenient attribute to derive `Display` implementation from another implementation. Currently supports `ToTokens`.
+"""
+license = "MIT"
+license-file = "LICENSE"
+readme = "README.md"
+keywords = ["derive", "trait", "impl", "display", "helper"]
+categories = ["rust-patterns", "value-formatting", "development-tools", "development-tools::procedural-macro-helpers"]
+documentation = "https://docs.rs/derive_display"
+homepage = "https://github.com/orgrinrt/derive_display"
+repository = "https://github.com/orgrinrt/derive_display"
 
 [lib]
 proc-macro = true
 
 [dev-dependencies]
-include_proc_macro = { git = "https://github.com/orgrinrt/include_proc_macro.git" }
 
 [dependencies]
+# TODO: comb over what we actually use and minimize the features on deps
+include_proc_macro = "1.0.6"
 syn = { version = "2.0.52", features = ["full", "extra-traits"] }
 quote = "1.0.9"
-paste = "1.0.14"
 proc-macro2 = { version = "1.0.78", features = [] }
-lazy_static = "1.4.0"
-regex = "1.10.3"
-log = "0.4.21"
-proc-macro-error = "1.0.4"
-to_snake_case = "0.1.1"
 proc-macro-crate = "3.1.0"

@@ -1,17 +1,18 @@
 use proc_macro::TokenStream;
 
 use quote::{quote, ToTokens};
-use syn::{Generics, parse_str};
-use syn::__private::TokenStream2;
+use syn::{parse_str, Generics};
+// TODO: use the one in proc_macro2 crate
 use syn::ItemImpl;
+use syn::__private::TokenStream2;
 
 #[proc_macro_attribute]
 pub fn derive_display(_attr: TokenStream, item: TokenStream) -> TokenStream {
     // panic!("item: \n {} \n", item);
     let mut result = TokenStream2::new();
     let orig_item = item.clone();
-    TokenStream2::from(item).to_tokens(&mut  result);
-    
+    TokenStream2::from(item).to_tokens(&mut result);
+
     let parsed: ItemImpl = syn::parse(orig_item).expect("Expected a valid ItemImpl block");
     // let (_, tr, _) = parsed.trait_.expect("Expected there to be a trait in an ItemImpl");
     let impl_generics: Generics = parsed.generics;
@@ -26,17 +27,6 @@ pub fn derive_display(_attr: TokenStream, item: TokenStream) -> TokenStream {
             }
         }
     };
-    q.to_tokens(&mut  result);
+    q.to_tokens(&mut result);
     result.into()
 }
-
-
-// impl<T: Parse + Display + ToTokens + Clone, D: Token + Parse + Default + ToTokens> Display for
-// PunctSet<T,
-//     D> {
-//     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-//         let s = &self;
-//         let q = quote!(#s);
-//         f.write_fmt(format_args!("{}", q.to_string()))
-//     }
-// }
