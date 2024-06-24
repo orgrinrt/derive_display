@@ -4,7 +4,8 @@ authors = ["orgrinrt", "Hiisi Digital"]
 version = "0.0.2"
 edition = "2021"
 description = """
-A convenient attribute to derive `Display` implementation from another implementation. Currently supports `ToTokens`.
+A convenient attribute to derive `Display` implementation from another trait implementation. Currently supports 
+`ToTokens`.
 """
 license = "MIT"
 license-file = "LICENSE"
@@ -21,9 +22,7 @@ proc-macro = true
 [dev-dependencies]
 
 [dependencies]
-# TODO: comb over what we actually use and minimize the features on deps
 include_proc_macro = "1.0.6"
-syn = { version = "2.0.52", features = ["full", "extra-traits"] }
-quote = "1.0.9"
-proc-macro2 = { version = "1.0.78", features = [] }
-proc-macro-crate = "3.1.0"
+syn = { version = "2.0.68", default-features = false, features = ["full", "parsing", "proc-macro", "printing"] }
+quote = "1.0.36"
+proc-macro2 = { version = "1.0.86", features = [] }

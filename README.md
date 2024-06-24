@@ -7,7 +7,8 @@ derive_display
 [![GitHub Issues](https://img.shields.io/github/issues/orgrinrt/derive_display.svg)](https://github.com/orgrinrt/derive_display/issues)
 [![Current Version](https://img.shields.io/badge/version-0.0.2-red.svg)](https://github.com/orgrinrt/derive_display)
 
-> A convenient attribute to derive `Display` implementation from another implementation. Currently supports `ToTokens`.
+> A convenient attribute to derive `Display` implementation from another trait implementation. Currently supports
+> `ToTokens`.
 
 </div>
 
@@ -17,7 +18,7 @@ To use this proc-macro in your project, add the following to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-derive_display = "0.0.1" # use the latest version, or a specific one if needed
+derive_display = "0.0.2" # use the latest version, or a specific one if needed
 ```
 
 Then wherever you want to derive `Display` from another implementation, use the `#[derive_display]`
@@ -43,7 +44,7 @@ to be done. Simple as that.
 |----------------|-----------------------------------------------------------------------|
 | `ToTokens`     | Simply uses whatever `ToTokens` returns as the display representation |
 
-> Note: Support for generics and most usual edge cases are built in, so it *should* be as easy as plug in and use.
+> Note: Support for generics and some usual edge cases are built in, so it *should* be as easy as plug in and use.
 > Issues and PRs are welcome if it doesn't cover something yet!
 
 ## Example
@@ -88,10 +89,13 @@ achieving the same), the developer would have to manually write out something li
 
 ## The Problem
 
-In Rust, types do not automatically implement the `Display` trait, which is required for types to be printable. This
-can feel like unnecessary busywork, if we simply want to print something sufficiently representing in a more
+In Rust, types do not automatically implement the `Display` trait, which is required for types to be printable. This can
+feel like unnecessary busywork, if we simply want to print something sufficiently representing in a more
 human-readable form, *especially* if we already have implementations for traits that construct suitable formatted
 strings representing our struct.
+
+There's the actual derive proc-macro for display (i.e `#[derive(Display)]` for `struct`s), but that's
+not always ideal, and sometimes the struct just has members incompatible with that macro.
 
 This crate provides a solution to this by allowing developers to derive the `Display`
 implementation from an existing trait implementation simply by using a simple attribute.
