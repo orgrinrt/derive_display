@@ -7,8 +7,7 @@ derive_display
 [![GitHub Issues](https://img.shields.io/github/issues/orgrinrt/derive_display.svg)](https://github.com/orgrinrt/derive_display/issues)
 [![Current Version](https://img.shields.io/badge/version-0.0.3-red.svg)](https://github.com/orgrinrt/derive_display)
 
-> A convenient attribute to derive `Display` implementation from another trait implementation. Currently supports
-> `ToTokens`.
+> An attribute to derive a `Display` implementation from another trait implementation, currently `ToTokens`.
 
 </div>
 
@@ -18,7 +17,7 @@ To use this proc-macro in your project, add the following to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-derive_display = "0.0.2" # use the latest version, or a specific one if needed
+derive_display = "0.0.3" # use the latest version, or a specific one if needed
 ```
 
 Then wherever you want to derive `Display` from another implementation, use the `#[derive_display]`
@@ -28,34 +27,36 @@ attribute before that implementation:
 use derive_display::derive_display;
 
 #[derive_display]
-impl SomeTrait for MyStruct {
-    fn some_trait(&self, foo: &mut Bar) {
-        ...
+impl ToTokens for MyStruct {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        // ...
     }
 }
 ```
 
-This means you can simply tag the implementation you wish with the attribute, and nothing else needs
-to be done. Simple as that.
+Tag the implementation with the attribute, and nothing else needs to be done. The original
+implementation is kept as-is; a `Display` implementation is emitted alongside it.
 
 ### Currently supported implementations
 
-| Implementation | Description                                                           |
-|----------------|-----------------------------------------------------------------------|
-| `ToTokens`     | Simply uses whatever `ToTokens` returns as the display representation |
+`ToTokens` is the only supported implementation right now: the derived `Display` formats whatever
+the `to_tokens` method produces. Tagging an implementation of any other trait fails at compile time.
 
-> Note: Support for generics and some usual edge cases are built in, so it *should* be as easy as plug in and use.
-> Issues and PRs are welcome if it doesn't cover something yet!
+> Note: Support for generics and some usual edge cases is built in.
+> Issues and PRs are welcome if it doesn't cover something yet.
 
 ## Example
 
 Let's say we have a struct and we need to provide a `Display` implementation. If it so happens
 that we already have a suitable implementation that formats a string for some other purpose, and that would suffice, you
-can simply tag the impl with the `#[derive_display]` attribute:
+can tag the impl with the `#[derive_display]` attribute:
 
 ```rust
+use std::fmt::{Display, Formatter};
+
 use derive_display::derive_display;
-use quote::ToTokens;
+use proc_macro2::TokenStream;
+use quote::{quote, ToTokens};
 
 struct MyStruct {
     x: i32,
@@ -64,7 +65,7 @@ struct MyStruct {
 
 #[derive_display]
 impl ToTokens for MyStruct {
-    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
         let content = format!("MyStruct: x = {}, y = {}", self.x, self.y);
         content.to_tokens(tokens);
     }
@@ -77,31 +78,34 @@ This expands to the following implementation, *in addition* to the source implem
 impl Display for MyStruct {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let s = &self;
-        let q = quote!(#s); // <-- this is for the `ToTokens` derive
-        f.write_fmt(format_args!("{}", q.to_string()))
+        let q = quote!(#s); // tokens from the `ToTokens` impl
+        f.write_fmt(format_args!("{}", q))
     }
 }
 ```
 
+Note that the generated code refers to `Display`, `Formatter` and `quote!` unqualified, so those
+need to be in scope where the attribute is used (as in the imports above).
+
 This results in a `Display` implementation without any explicit busywork. Without this crate (or some other way of
-achieving the same), the developer would have to manually write out something like the above implementation of
-`Display`, which is pretty boring and redundant, since it just uses some method of forwarding another implementation.
+achieving the same), you would have to manually write out something like the above implementation of
+`Display`, which is redundant, since it just forwards another implementation.
 
 ## The Problem
 
 In Rust, types do not automatically implement the `Display` trait, which is required for types to be printable. This can
-feel like unnecessary busywork, if we simply want to print something sufficiently representing in a more
+feel like unnecessary busywork, if we just want to print something in a
 human-readable form, *especially* if we already have implementations for traits that construct suitable formatted
 strings representing our struct.
 
-There's the actual derive proc-macro for display (i.e `#[derive(Display)]` for `struct`s), but that's
-not always ideal, and sometimes the struct just has members incompatible with that macro.
+There are derive proc-macros for display in the ecosystem (e.g. `#[derive(Display)]` from `derive_more`), but they are
+not always ideal, and sometimes the struct just has members incompatible with those macros.
 
-This crate provides a solution to this by allowing developers to derive the `Display`
-implementation from an existing trait implementation simply by using a simple attribute.
+This crate provides a solution to this by deriving the `Display`
+implementation from an existing trait implementation with a single attribute.
 
-This creates a `Display` implementation with minimal effort, and removes the need for verbose and manual `Display`
-implementation, especially when it's similar to already implemented `ToTokens` trait.
+This creates a `Display` implementation with minimal effort, and removes the need for a verbose and manual `Display`
+implementation, especially when it would mirror an already implemented `ToTokens` trait.
 
 ## Support
 
@@ -112,6 +116,6 @@ me a coffee, so I can dedicate more time on open-source projects like this :)
 
 ## License
 
-> You can check out the full license [here](https://github.com/orgrinrt/derive_display/blob/master/LICENSE)
+> You can check out the full license [here](https://github.com/orgrinrt/derive_display/blob/main/LICENSE)
 
 This project is licensed under the terms of the **MIT** license.

@@ -4,8 +4,7 @@ authors = ["orgrinrt", "Hiisi Digital"]
 version = "0.0.3"
 edition = "2021"
 description = """
-A convenient attribute to derive `Display` implementation from another trait implementation. Currently supports 
-`ToTokens`.
+An attribute to derive a `Display` implementation from another trait implementation, currently `ToTokens`.
 """
 license = "MIT"
 license-file = "LICENSE"
