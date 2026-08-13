@@ -5,7 +5,6 @@ use quote::{quote, ToTokens};
 use syn::ItemImpl;
 use syn::{parse_str, Generics, Path, Type};
 
-#[proc_macro_attribute]
 pub fn derive_display(_attr: TokenStream, item: TokenStream) -> TokenStream {
     // panic!("item: \n {} \n", item);
     let mut result = TokenStream2::new();

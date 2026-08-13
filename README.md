@@ -23,7 +23,7 @@ derive_display = "0.0.3" # use the latest version, or a specific one if needed
 Then wherever you want to derive `Display` from another implementation, use the `#[derive_display]`
 attribute before that implementation:
 
-```rust
+```rust,ignore
 use derive_display::derive_display;
 
 #[derive_display]
@@ -74,7 +74,7 @@ impl ToTokens for MyStruct {
 
 This expands to the following implementation, *in addition* to the source implementation:
 
-```rust
+```rust,ignore
 impl Display for MyStruct {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let s = &self;
