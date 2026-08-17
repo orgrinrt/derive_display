@@ -7,7 +7,6 @@ description = """
 An attribute to derive a `Display` implementation from another trait implementation, currently `ToTokens`.
 """
 license = "MIT"
-license-file = "LICENSE"
 readme = "README.md"
 keywords = ["derive", "trait", "impl", "display", "helper"]
 categories = ["rust-patterns", "value-formatting", "development-tools", "development-tools::procedural-macro-helpers"]
