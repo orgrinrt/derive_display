@@ -149,9 +149,15 @@ fn the_format_flags_reach_through() {
 }
 
 #[test]
-fn a_qualified_trait_path_is_read_by_its_last_segment() {
-    // `impl quote::ToTokens for _` names the same trait, and the attribute reads the last
-    // segment rather than the whole path.
+fn a_qualified_trait_path_is_read_by_its_last_segment_and_emitted_whole() {
+    // Two things at once. The attribute reads the last segment to decide which trait this
+    // is, and emits the path as the caller wrote it.
+    //
+    // The second half is what stops the generated code hard-naming `::quote::ToTokens`. A
+    // crate that depends on quote under another name has no `quote` to resolve, and got
+    // `could not find 'quote' in the list of imported crates` spanned at the attribute.
+    // Whatever path the caller's own impl resolves through, the generated one resolves
+    // through too, because it is the same path.
     assert_eq!(format!("{}", Qualified), "Qualified");
 }
 

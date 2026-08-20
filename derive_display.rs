@@ -56,7 +56,7 @@ pub fn derive_display(attr: TokenStream, item: TokenStream) -> TokenStream {
     };
 
     let derived = match trait_name.as_str() {
-        "ToTokens" => from_to_tokens(&parsed),
+        "ToTokens" => from_to_tokens(&parsed, trait_path),
         other => refuse(
             trait_path.span(),
             &format!(
@@ -84,14 +84,21 @@ fn refuse(span: Span, message: &str) -> TokenStream2 {
 
 /// `Display` written in terms of `ToTokens`.
 ///
-/// Every path is absolute. The generated code lands in the caller's module, where nothing
-/// promises that `Display`, `Formatter` or `quote` is in scope, and demanding three
-/// imports for an attribute that could write them itself is a poor trade.
+/// Every path in the generated code is absolute, except the trait's, which is taken from
+/// the impl block being decorated. The generated code lands in the caller's module, where
+/// nothing promises that `Display` or `Formatter` is in scope, and demanding imports for
+/// an attribute that could write them itself is a poor trade.
+///
+/// The trait is spelled the way the caller spelled it rather than as `::quote::ToTokens`,
+/// because a hard-coded crate name is a bet that the consumer named their dependency the
+/// same way. A crate depending on quote under another name got
+/// `could not find 'quote' in the list of imported crates`, spanned at the attribute. The
+/// path the caller wrote resolves wherever their own impl does, by construction.
 ///
 /// It also no longer expands a `quote!` in the caller's crate. `ToTokens` already provides
 /// `to_token_stream`, so the body is a conversion rather than a macro invocation around an
 /// interpolated `self`.
-fn from_to_tokens(parsed: &ItemImpl) -> TokenStream2 {
+fn from_to_tokens(parsed: &ItemImpl, trait_path: &syn::Path) -> TokenStream2 {
     let ty = &parsed.self_ty;
 
     // `split_for_impl` is what carries the `where` clause. Emitting `parsed.generics`
@@ -109,7 +116,7 @@ fn from_to_tokens(parsed: &ItemImpl) -> TokenStream2 {
                 // TokenStream's own Display ignores them, so delegating to it dropped
                 // `{:>10}` on the floor.
                 f.pad(&::std::string::ToString::to_string(
-                    &::quote::ToTokens::to_token_stream(self),
+                    &#trait_path::to_token_stream(self),
                 ))
             }
         }
