@@ -3,7 +3,9 @@ name = "derive_display"
 authors = ["orgrinrt", "Hiisi Digital"]
 version = "0.0.5"
 edition = "2021"
-rust-version = "1.70"
+# 1.70 builds this crate's own code, and quote 1.0.47 does not, so 1.71 is where a
+# fresh resolve actually works. Verified by building under 1.71.0.
+rust-version = "1.71"
 description = """
 An attribute to derive a `Display` implementation from another trait implementation, currently `ToTokens`.
 """
