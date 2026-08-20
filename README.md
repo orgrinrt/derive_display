@@ -5,7 +5,7 @@ derive_display
 [![GitHub Stars](https://img.shields.io/github/stars/orgrinrt/derive_display.svg)](https://github.com/orgrinrt/derive_display/stargazers)
 [![Crates.io Total Downloads](https://img.shields.io/crates/d/derive_display)](https://crates.io/crates/derive_display)
 [![GitHub Issues](https://img.shields.io/github/issues/orgrinrt/derive_display.svg)](https://github.com/orgrinrt/derive_display/issues)
-[![Current Version](https://img.shields.io/badge/version-0.0.3-red.svg)](https://github.com/orgrinrt/derive_display)
+[![Current Version](https://img.shields.io/badge/version-0.0.5-red.svg)](https://github.com/orgrinrt/derive_display)
 
 > An attribute to derive a `Display` implementation from another trait implementation, currently `ToTokens`.
 
@@ -17,21 +17,25 @@ To use this proc-macro in your project, add the following to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-derive_display = "0.0.3" # use the latest version, or a specific one if needed
+derive_display = "0.0.5" # use the latest version, or a specific one if needed
 ```
 
 Then wherever you want to derive `Display` from another implementation, use the `#[derive_display]`
 attribute before that implementation:
 
-```rust,ignore
+```rust
+# use proc_macro2::TokenStream;
+# use quote::{quote, ToTokens};
+# struct MyStruct;
 use derive_display::derive_display;
 
 #[derive_display]
 impl ToTokens for MyStruct {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        // ...
+        quote!(MyStruct).to_tokens(tokens);
     }
 }
+# fn main() { assert_eq!(format!("{}", MyStruct), "MyStruct"); }
 ```
 
 Tag the implementation with the attribute, and nothing else needs to be done. The original
@@ -39,11 +43,14 @@ implementation is kept as-is; a `Display` implementation is emitted alongside it
 
 ### Currently supported implementations
 
-`ToTokens` is the only supported implementation right now: the derived `Display` formats whatever
-the `to_tokens` method produces. Tagging an implementation of any other trait fails at compile time.
+`ToTokens` is the only supported implementation right now: the derived `Display` formats
+whatever the `to_tokens` method produces. Tagging any other trait, an impl block with no
+trait at all, or passing arguments to the attribute, each fails at compile time with a
+message pointing at the thing that is wrong.
 
-> Note: Support for generics and some usual edge cases is built in.
-> Issues and PRs are welcome if it doesn't cover something yet.
+Generic impls are supported, including `where` clauses, inline bounds, lifetimes and const
+parameters, and each of those shapes has a test. The `where` clause used to be dropped, so
+a bounded impl generated a `Display` that could not compile; that is fixed and pinned.
 
 ## Example
 
@@ -52,8 +59,6 @@ that we already have a suitable implementation that formats a string for some ot
 can tag the impl with the `#[derive_display]` attribute:
 
 ```rust
-use std::fmt::{Display, Formatter};
-
 use derive_display::derive_display;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
@@ -75,17 +80,22 @@ impl ToTokens for MyStruct {
 This expands to the following implementation, *in addition* to the source implementation:
 
 ```rust,ignore
-impl Display for MyStruct {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let s = &self;
-        let q = quote!(#s); // tokens from the `ToTokens` impl
-        f.write_fmt(format_args!("{}", q))
+impl ::core::fmt::Display for MyStruct {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        f.pad(&::std::string::ToString::to_string(
+            &::quote::ToTokens::to_token_stream(self),
+        ))
     }
 }
 ```
 
-Note that the generated code refers to `Display`, `Formatter` and `quote!` unqualified, so those
-need to be in scope where the attribute is used (as in the imports above).
+Every path in it is absolute, so nothing has to be in scope where the attribute is used.
+Earlier versions named `Display`, `Formatter` and `quote!` unqualified and needed three
+imports at the call site to work.
+
+`f.pad` is what makes the format flags behave: `{:>10}` and `{:-^11}` pad and align the way
+they would on any other value. Writing the tokens straight out would drop them, which both
+the previous implementation and a plain delegation to `TokenStream`'s own `Display` do.
 
 This results in a `Display` implementation without any explicit busywork. Without this crate (or some other way of
 achieving the same), you would have to manually write out something like the above implementation of

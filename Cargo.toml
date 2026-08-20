@@ -1,8 +1,9 @@
 [package]
 name = "derive_display"
 authors = ["orgrinrt", "Hiisi Digital"]
-version = "0.0.4"
+version = "0.0.5"
 edition = "2021"
+rust-version = "1.70"
 description = """
 An attribute to derive a `Display` implementation from another trait implementation, currently `ToTokens`.
 """
@@ -18,6 +19,7 @@ repository = "https://github.com/orgrinrt/derive_display"
 proc-macro = true
 
 [dev-dependencies]
+trybuild = "1.0"
 
 [dependencies]
 include_proc_macro = "2.0"

@@ -1,0 +1,5 @@
+error: `derive_display` needs an impl of a trait, and this block implements none. Attach it to something like `impl ToTokens for MyType`.
+ --> tests/ui/no_trait_at_all.rs:6:6
+  |
+6 | impl Thing {
+  |      ^^^^^
