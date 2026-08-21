@@ -49,8 +49,8 @@ trait at all, or passing arguments to the attribute, each fails at compile time 
 message pointing at the thing that is wrong.
 
 Generic impls are supported, including `where` clauses, inline bounds, lifetimes and const
-parameters, and each of those shapes has a test. The `where` clause used to be dropped, so
-a bounded impl generated a `Display` that could not compile; that is fixed and pinned.
+parameters. Each of those shapes has a test, so a bounded impl generates a `Display` that
+carries the same bounds.
 
 ## Example
 
