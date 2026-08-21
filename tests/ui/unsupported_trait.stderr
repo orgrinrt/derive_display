@@ -1,0 +1,5 @@
+error: `derive_display` cannot derive `Display` from `Unrelated`. It currently knows how to do so from `ToTokens` only.
+  --> tests/ui/unsupported_trait.rs:10:6
+   |
+10 | impl Unrelated for Thing {
+   |      ^^^^^^^^^
