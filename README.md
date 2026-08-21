@@ -124,6 +124,41 @@ me a coffee, so I can dedicate more time on open-source projects like this :)
 
 <a href="https://buymeacoffee.com/orgrinrt" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
 
+## Features
+
+Neither changes this crate, which is a proc macro and stays `std` whatever is selected: it
+runs on the host inside the compiler, where syn, quote and proc-macro2 all use `std`. What
+they change is the code the attribute writes into your crate.
+
+| Feature | Effect on the generated `Display` |
+|---|---|
+| default | Reaches `ToString::to_string` through `::std::string`. |
+| `no_std` | Says the consumer is `#![no_std]`. Changes nothing about what is emitted: the generated impl declares `alloc` itself, so one expansion resolves in a `#![no_std]` crate and a plain one alike. |
+| `no_alloc` | Implies `no_std`, and governs this crate's own surface, which is empty. |
+
+The generated `Display` still allocates and cannot stop: `ToTokens::to_token_stream`
+materialises a `TokenStream`, and `Display` has to have the text before it can pad it to a
+width. That is a property of the trait being derived from rather than of this crate, and
+`no_alloc` says so here rather than implying otherwise by existing quietly.
+
+`tests/feature_matrix.rs` compiles a real consumer under each selection, including a bare
+`#![no_std]` one that declares no `alloc` of its own. Its control is the pair that matters:
+both kinds of consumer compile against the *same* build of this crate, which is what makes the
+emitted path additive rather than something a sibling can change under you.
+
+## Examples
+
+```text
+cargo run --example one_impl
+cargo run --example generics_and_refusals
+```
+
+The first is one `ToTokens` impl and the `Display` it gets for free, then that `Display`
+under every format specifier, with a `TokenStream`'s own `Display` beside it for comparison
+so the difference is visible. The second carries bounds through: a `where` clause, an
+inline bound, a lifetime, and nesting. Both are run by `cargo test`, in
+`tests/examples_run.rs`.
+
 ## License
 
 > You can check out the full license [here](https://github.com/orgrinrt/derive_display/blob/main/LICENSE)

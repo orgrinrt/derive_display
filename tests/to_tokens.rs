@@ -57,7 +57,9 @@ fn a_where_clause_reaches_the_generated_impl() {
     // The clause used to be dropped. `parsed.generics` prints the parameters and not the
     // bounds, so the generated `impl<T> Display for Bounded<T>` had no `T: Clone` while
     // its body called something that needed one, and it could not compile.
-    let b = Bounded { inner: 1u8 };
+    let b = Bounded {
+        inner: 1u8,
+    };
     assert_eq!(format!("{b}"), "Bounded");
 }
 
@@ -74,7 +76,9 @@ impl<T: Clone> ToTokens for Inline<T> {
 
 #[test]
 fn an_inline_bound_reaches_the_generated_impl() {
-    let i = Inline { inner: 1u8 };
+    let i = Inline {
+        inner: 1u8,
+    };
     assert_eq!(format!("{i}"), "Inline");
 }
 
@@ -91,7 +95,9 @@ impl<'a> ToTokens for Borrowing<'a> {
 
 #[test]
 fn a_lifetime_parameter_reaches_the_generated_impl() {
-    let b = Borrowing { inner: "x" };
+    let b = Borrowing {
+        inner: "x",
+    };
     assert_eq!(format!("{b}"), "Borrowing");
 }
 
@@ -115,7 +121,9 @@ where
 #[test]
 fn a_lifetime_a_type_and_a_const_parameter_together() {
     let values = [1u8, 2, 3];
-    let s = Several { inner: &values };
+    let s = Several {
+        inner: &values,
+    };
     assert_eq!(format!("{s}"), "Several");
 }
 
