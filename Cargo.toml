@@ -28,3 +28,21 @@ include_proc_macro = "2.0"
 syn = { version = "2.0.68", default-features = false, features = ["full", "parsing", "proc-macro", "printing"] }
 quote = "1.0.36"
 proc-macro2 = { version = "1.0.86", features = [] }
+
+[features]
+default = []
+# Changes which crate the generated `Display` reaches `ToString::to_string` through:
+# `::alloc::string` rather than `::std::string`. A `#![no_std]` consumer needs
+# `extern crate alloc;` for that path to resolve, which is why it is a choice rather than
+# the default: a plain `std` crate has no reason to have declared it.
+#
+# This crate itself is a proc macro and stays `std` whatever is selected here. It runs on
+# the host inside the compiler, where syn, quote and proc-macro2 all use `std`.
+no_std = []
+# Implies `no_std`, and governs this crate's own surface, which is empty.
+#
+# What the attribute generates still allocates, and cannot stop: `ToTokens::to_token_stream`
+# materialises a `TokenStream`, and `Display` has to have the text before it can pad it to
+# a width. That is a property of the trait being derived from rather than of this crate, and
+# the feature says so here rather than implying otherwise by existing quietly.
+no_alloc = ["no_std"]

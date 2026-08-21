@@ -108,6 +108,13 @@ fn from_to_tokens(parsed: &ItemImpl, trait_path: &syn::Path) -> TokenStream2 {
     // carries them.
     let (impl_generics, _ty_generics, where_clause) = parsed.generics.split_for_impl();
 
+    // `ToString` lives in `alloc` and is re-exported by `std`. Naming `::std` put the
+    // generated impl out of reach of every `#![no_std]` consumer, and naming `::alloc`
+    // unconditionally would put it out of reach of every consumer that has not declared
+    // `extern crate alloc`, which a plain `std` crate has no reason to have done. So the
+    // path follows the feature, and the caller picks it once for their whole build.
+    let to_string = to_string_path();
+
     quote! {
         impl #impl_generics ::core::fmt::Display for #ty #where_clause {
             fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
@@ -115,10 +122,25 @@ fn from_to_tokens(parsed: &ItemImpl, trait_path: &syn::Path) -> TokenStream2 {
                 // and precision behave the way a reader expects of any Display. A
                 // TokenStream's own Display ignores them, so delegating to it dropped
                 // `{:>10}` on the floor.
-                f.pad(&::std::string::ToString::to_string(
+                f.pad(&#to_string(
                     &#trait_path::to_token_stream(self),
                 ))
             }
         }
+    }
+}
+
+/// Where the generated code reaches for `ToString::to_string`.
+///
+/// `alloc` under the `no_std` feature, `std` otherwise. Both are the same function; the
+/// difference is which crate the consumer can name.
+fn to_string_path() -> TokenStream2 {
+    #[cfg(feature = "no_std")]
+    {
+        quote!(::alloc::string::ToString::to_string)
+    }
+    #[cfg(not(feature = "no_std"))]
+    {
+        quote!(::std::string::ToString::to_string)
     }
 }
