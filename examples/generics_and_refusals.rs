@@ -28,7 +28,7 @@ where
 
 /// Two parameters and a bound on one of them.
 struct Pair<A, B> {
-    left:  A,
+    left: A,
     right: B,
 }
 
@@ -62,13 +62,15 @@ fn main() {
     // `proc_macro2::Literal` rather than one of syn's literal types, because syn is
     // built here without `clone-impls` and the `Pair` below asks for `Clone`.
     let lit = proc_macro2::Literal::u32_unsuffixed(42);
-    let wrapped = Wrapped { inner: lit.clone() };
+    let wrapped = Wrapped {
+        inner: lit.clone(),
+    };
     println!("{wrapped}");
 
     println!("\nTwo parameters, one bounded inline and one in the where clause.\n");
 
     let pair = Pair {
-        left:  proc_macro2::Literal::u32_unsuffixed(1),
+        left: proc_macro2::Literal::u32_unsuffixed(1),
         right: proc_macro2::Literal::u32_unsuffixed(2),
     };
     println!("{pair}");
@@ -76,12 +78,18 @@ fn main() {
     println!("\nA lifetime, which the self type already carries.\n");
 
     let owned = String::from("borrowed text");
-    let borrowed = Borrowed { text: &owned };
+    let borrowed = Borrowed {
+        text: &owned,
+    };
     println!("{borrowed}");
 
     println!("\nNesting, since a Wrapped<T> is itself a ToTokens and so is its Display.\n");
 
-    let nested = Wrapped { inner: Wrapped { inner: lit } };
+    let nested = Wrapped {
+        inner: Wrapped {
+            inner: lit,
+        },
+    };
     println!("{nested}");
     println!("[{nested:>40}]");
 

@@ -11,7 +11,7 @@ use quote::{quote, ToTokens};
 /// A field in something being generated.
 struct Field {
     name: &'static str,
-    ty:   &'static str,
+    ty: &'static str,
 }
 
 // The attribute emits this impl unchanged, then a `Display` written in terms of it.
@@ -25,7 +25,10 @@ impl ToTokens for Field {
 }
 
 fn main() {
-    let field = Field { name: "retries", ty: "u32" };
+    let field = Field {
+        name: "retries",
+        ty: "u32",
+    };
 
     // `Display`, which nothing in this file wrote.
     println!("{field}");

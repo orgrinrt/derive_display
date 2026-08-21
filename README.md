@@ -133,7 +133,7 @@ they change is the code the attribute writes into your crate.
 | Feature | Effect on the generated `Display` |
 |---|---|
 | default | Reaches `ToString::to_string` through `::std::string`. |
-| `no_std` | Reaches it through `::alloc::string`, so the impl compiles in a `#![no_std]` crate. That crate needs `extern crate alloc;` for the path to resolve, which is why this is a choice rather than the default. |
+| `no_std` | Says the consumer is `#![no_std]`. Changes nothing about what is emitted: the generated impl declares `alloc` itself, so one expansion resolves in a `#![no_std]` crate and a plain one alike. |
 | `no_alloc` | Implies `no_std`, and governs this crate's own surface, which is empty. |
 
 The generated `Display` still allocates and cannot stop: `ToTokens::to_token_stream`
@@ -141,9 +141,10 @@ materialises a `TokenStream`, and `Display` has to have the text before it can p
 width. That is a property of the trait being derived from rather than of this crate, and
 `no_alloc` says so here rather than implying otherwise by existing quietly.
 
-`tests/feature_matrix.rs` compiles a real consumer under each selection, including a
-`#![no_std]` one, with controls confirming the `std` path really does fail there and that
-`::alloc` really does need declaring.
+`tests/feature_matrix.rs` compiles a real consumer under each selection, including a bare
+`#![no_std]` one that declares no `alloc` of its own. Its control is the pair that matters:
+both kinds of consumer compile against the *same* build of this crate, which is what makes the
+emitted path additive rather than something a sibling can change under you.
 
 ## Examples
 

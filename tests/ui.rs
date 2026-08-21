@@ -18,7 +18,10 @@ fn every_refusal_says_what_is_wrong() {
         .filter_map(Result::ok)
         .filter(|e| e.path().extension().is_some_and(|x| x == "rs"))
         .count();
-    assert_eq!(found, EXPECTED_CASES, "expected {EXPECTED_CASES} cases, found {found}");
+    assert_eq!(
+        found, EXPECTED_CASES,
+        "expected {EXPECTED_CASES} cases, found {found}"
+    );
 
     let t = trybuild::TestCases::new();
     t.compile_fail("tests/ui/*.rs");

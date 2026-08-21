@@ -31,13 +31,18 @@ proc-macro2 = { version = "1.0.86", features = [] }
 
 [features]
 default = []
-# Changes which crate the generated `Display` reaches `ToString::to_string` through:
-# `::alloc::string` rather than `::std::string`. A `#![no_std]` consumer needs
-# `extern crate alloc;` for that path to resolve, which is why it is a choice rather than
-# the default: a plain `std` crate has no reason to have declared it.
+# Inert, and that is the point rather than an oversight. The generated impl declares `alloc`
+# itself inside a `const _: () = { .. }`, so one expansion resolves in a `#![no_std]` consumer
+# and a plain one alike and there is nothing left for a feature to select.
 #
-# This crate itself is a proc macro and stays `std` whatever is selected here. It runs on
-# the host inside the compiler, where syn, quote and proc-macro2 all use `std`.
+# It stays so a consumer can say what it is and have the claim checked, and
+# `tests/feature_matrix.rs` compiles a real consumer under it. It is additive: turning it on
+# changes nothing anybody else can observe, which is what a cargo feature has to be, since
+# features unify across a dependency graph. An earlier version selected the emitted path, so
+# one sibling enabling it broke unrelated crates that never named it.
+#
+# This crate itself is a proc macro and is always `std`. It runs on the host inside the
+# compiler, where syn, quote and proc-macro2 all use `std`.
 no_std = []
 # Implies `no_std`, and governs this crate's own surface, which is empty.
 #

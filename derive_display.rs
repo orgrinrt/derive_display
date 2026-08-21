@@ -108,39 +108,32 @@ fn from_to_tokens(parsed: &ItemImpl, trait_path: &syn::Path) -> TokenStream2 {
     // carries them.
     let (impl_generics, _ty_generics, where_clause) = parsed.generics.split_for_impl();
 
-    // `ToString` lives in `alloc` and is re-exported by `std`. Naming `::std` put the
-    // generated impl out of reach of every `#![no_std]` consumer, and naming `::alloc`
-    // unconditionally would put it out of reach of every consumer that has not declared
-    // `extern crate alloc`, which a plain `std` crate has no reason to have done. So the
-    // path follows the feature, and the caller picks it once for their whole build.
-    let to_string = to_string_path();
-
+    // `ToString` lives in `alloc` and is re-exported by `std`. Naming `::std` puts the impl
+    // out of reach of a `#![no_std]` consumer, and naming `::alloc` puts it out of reach of a
+    // plain `std` consumer, which has no reason to have declared `extern crate alloc`.
+    //
+    // So the expansion declares it itself, inside a `const _: () = { .. }`. An `extern crate`
+    // is legal in a block, an impl written in one is as global as any other, and `alloc` is
+    // present on a `std` target too. One spelling therefore serves both, which is why this
+    // crate has no feature selecting between them: a feature here would have been read as
+    // additive and is not, since cargo unifies features across a dependency graph and one
+    // sibling turning it on would change what every unrelated consumer's macros emit.
     quote! {
-        impl #impl_generics ::core::fmt::Display for #ty #where_clause {
-            fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
-                // `f.pad` rather than writing straight out, so width, fill, alignment
-                // and precision behave the way a reader expects of any Display. A
-                // TokenStream's own Display ignores them, so delegating to it dropped
-                // `{:>10}` on the floor.
-                f.pad(&#to_string(
-                    &#trait_path::to_token_stream(self),
-                ))
+        const _: () = {
+            extern crate alloc as __derive_display_alloc;
+
+            impl #impl_generics ::core::fmt::Display for #ty #where_clause {
+                fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+                    // `f.pad` rather than writing straight out, so width, fill, alignment
+                    // and precision behave the way a reader expects of any Display. A
+                    // TokenStream's own Display ignores them, so delegating to it dropped
+                    // `{:>10}` on the floor.
+                    f.pad(&__derive_display_alloc::string::ToString::to_string(
+                        &#trait_path::to_token_stream(self),
+                    ))
+                }
             }
-        }
+        };
     }
 }
 
-/// Where the generated code reaches for `ToString::to_string`.
-///
-/// `alloc` under the `no_std` feature, `std` otherwise. Both are the same function; the
-/// difference is which crate the consumer can name.
-fn to_string_path() -> TokenStream2 {
-    #[cfg(feature = "no_std")]
-    {
-        quote!(::alloc::string::ToString::to_string)
-    }
-    #[cfg(not(feature = "no_std"))]
-    {
-        quote!(::std::string::ToString::to_string)
-    }
-}
