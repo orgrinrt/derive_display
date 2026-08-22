@@ -1,15 +1,29 @@
-derive_display
-============
-<div style="text-align: center;">
+# `derive_display`
+
+<div align="center" style="text-align: center;">
 
 [![GitHub Stars](https://img.shields.io/github/stars/orgrinrt/derive_display.svg)](https://github.com/orgrinrt/derive_display/stargazers)
-[![Crates.io Total Downloads](https://img.shields.io/crates/d/derive_display)](https://crates.io/crates/derive_display)
+[![Crates.io](https://img.shields.io/crates/v/derive_display)](https://crates.io/crates/derive_display)
+[![docs.rs](https://img.shields.io/docsrs/derive_display)](https://docs.rs/derive_display)
 [![GitHub Issues](https://img.shields.io/github/issues/orgrinrt/derive_display.svg)](https://github.com/orgrinrt/derive_display/issues)
-[![Current Version](https://img.shields.io/badge/version-0.0.5-red.svg)](https://github.com/orgrinrt/derive_display)
+![License](https://img.shields.io/github/license/orgrinrt/derive_display?color=%23009689)
 
-> An attribute to derive a `Display` implementation from another trait implementation, currently `ToTokens`.
+> An attribute deriving a `Display` implementation from another trait implementation, currently `ToTokens`.
 
 </div>
+
+## Installation
+
+```bash
+cargo add derive_display
+```
+
+Or in `Cargo.toml`:
+
+```toml
+[dependencies]
+derive_display = "0.0.5"
+```
 
 ## Usage
 
@@ -101,7 +115,7 @@ This results in a `Display` implementation without any explicit busywork. Withou
 achieving the same), you would have to manually write out something like the above implementation of
 `Display`, which is redundant, since it just forwards another implementation.
 
-## The Problem
+## The problem
 
 In Rust, types do not automatically implement the `Display` trait, which is required for types to be printable. This can
 feel like unnecessary busywork, if we just want to print something in a
@@ -117,12 +131,6 @@ implementation from an existing trait implementation with a single attribute.
 This creates a `Display` implementation with minimal effort, and removes the need for a verbose and manual `Display`
 implementation, especially when it would mirror an already implemented `ToTokens` trait.
 
-## Support
-
-Whether you use this project, have learned something from it, or just like it, please consider supporting it by buying
-me a coffee, so I can dedicate more time on open-source projects like this :)
-
-<a href="https://buymeacoffee.com/orgrinrt" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
 
 ## Features
 
@@ -159,8 +167,16 @@ so the difference is visible. The second carries bounds through: a `where` claus
 inline bound, a lifetime, and nesting. Both are run by `cargo test`, in
 `tests/examples_run.rs`.
 
+## Support
+
+Whether you use this project, have learned something from it, or just like it, please consider supporting it by buying me a coffee, so I can dedicate more time on open-source projects like this :)
+
+<a href="https://buymeacoffee.com/orgrinrt" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
+
 ## License
 
-> You can check out the full license [here](https://github.com/orgrinrt/derive_display/blob/main/LICENSE)
+> The project is licensed under the **Mozilla Public License 2.0**.
 
-This project is licensed under the terms of the **MPL-2.0** license.
+`SPDX-License-Identifier: MPL-2.0`
+
+> You can check out the full license [here](https://github.com/orgrinrt/derive_display/blob/dev/LICENSE)

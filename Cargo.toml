@@ -1,6 +1,5 @@
 [package]
 name = "derive_display"
-authors = ["orgrinrt", "Hiisi Digital"]
 version = "0.0.5"
 edition = "2021"
 # 1.70 builds this crate's own code, and quote 1.0.47 does not, so 1.71 is where a
@@ -12,6 +11,7 @@ An attribute to derive a `Display` implementation from another trait implementat
 license = "MPL-2.0"
 readme = "README.md"
 keywords = ["derive", "trait", "impl", "display", "helper"]
+exclude = [".idea/", "target/"]
 categories = ["rust-patterns", "value-formatting", "development-tools", "development-tools::procedural-macro-helpers"]
 documentation = "https://docs.rs/derive_display"
 homepage = "https://github.com/orgrinrt/derive_display"
