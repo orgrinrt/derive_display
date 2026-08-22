@@ -12,6 +12,19 @@
 
 </div>
 
+## Installation
+
+```bash
+cargo add derive_display
+```
+
+Or in `Cargo.toml`:
+
+```toml
+[dependencies]
+derive_display = "0.0.5"
+```
+
 ## Usage
 
 To use this proc-macro in your project, add the following to your `Cargo.toml`:
@@ -102,7 +115,7 @@ This results in a `Display` implementation without any explicit busywork. Withou
 achieving the same), you would have to manually write out something like the above implementation of
 `Display`, which is redundant, since it just forwards another implementation.
 
-## The Problem
+## The problem
 
 In Rust, types do not automatically implement the `Display` trait, which is required for types to be printable. This can
 feel like unnecessary busywork, if we just want to print something in a
