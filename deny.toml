@@ -1,5 +1,5 @@
 [graph]
-targets = ["bins", "tests", "benches", "examples", "libs"]
+targets = []
 exclude = []
 all-features = true
 no-default-features = false
@@ -10,7 +10,7 @@ feature-depth = 1
 
 [advisories]
 # More info: https://embarkstudios.github.io/cargo-deny/checks/advisories/cfg.html
-db-path = ["$CARGO_HOME/advisory-dbs"]
+db-path = "$CARGO_HOME/advisory-dbs"
 db-urls = ["https://github.com/RustSec/advisory-db"]
 ignore = []
 
@@ -23,8 +23,8 @@ allow = [
     "CC0-1.0",
     "ISC",
     "MPL-2.0",
-    "Zlib"
-    # TODO: see about GPL licenses and how this would affect crate usage
+    "Unicode-3.0",
+    "Zlib",
 ]
 confidence-threshold = 0.9
 exceptions = []
