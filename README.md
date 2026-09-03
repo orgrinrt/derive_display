@@ -183,8 +183,7 @@ attribute body into the crate root here.
 Pre-1.0, so the api hasn't settled and a release can still move things, though the surface is
 one attribute and there isn't much room for it to move in. Every release is tagged and the log
 between two tags is what changed. It builds on stable, `rust-version` is 1.71, and no nightly
-feature is involved anywhere. Adding a second source trait to derive from is the likely next
-thing, if there's a call for one.
+feature is involved anywhere.
 
 ### Cargo features
 

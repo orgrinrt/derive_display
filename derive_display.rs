@@ -86,26 +86,24 @@ fn refuse(span: Span, message: &str) -> TokenStream2 {
 ///
 /// Every path in the generated code is absolute, except the trait's, which is taken from
 /// the impl block being decorated. The generated code lands in the caller's module, where
-/// nothing promises that `Display` or `Formatter` is in scope, and demanding imports for
-/// an attribute that could write them itself is a poor trade.
+/// nothing promises that `Display` or `Formatter` is in scope, so the attribute writes the
+/// full paths itself instead of asking for imports it could have spelled out.
 ///
-/// The trait is spelled the way the caller spelled it rather than as `::quote::ToTokens`,
-/// because a hard-coded crate name is a bet that the consumer named their dependency the
-/// same way. A crate depending on quote under another name got
-/// `could not find 'quote' in the list of imported crates`, spanned at the attribute. The
-/// path the caller wrote resolves wherever their own impl does, by construction.
+/// The trait is spelled the way the caller spelled it and not as `::quote::ToTokens`, since
+/// a hard-coded crate name assumes the consumer named their dependency the same way, and a
+/// crate depending on `quote` under some other name has no `quote` to resolve. Whatever
+/// path the caller's own impl resolves through, the generated one resolves through too.
 ///
-/// It also no longer expands a `quote!` in the caller's crate. `ToTokens` already provides
-/// `to_token_stream`, so the body is a conversion rather than a macro invocation around an
-/// interpolated `self`.
+/// The body is a plain call to `to_token_stream`, which `ToTokens` provides already, so
+/// nothing gets expanded in the caller's crate beyond the impl itself.
 fn from_to_tokens(parsed: &ItemImpl, trait_path: &syn::Path) -> TokenStream2 {
     let ty = &parsed.self_ty;
 
     // `split_for_impl` is what carries the `where` clause. Emitting `parsed.generics`
     // whole prints the parameters and drops the bounds, so
-    // `impl<T> ToTokens for W<T> where T: Clone` produced a `Display` impl with no bound,
-    // which could not compile. The type generics are not needed: the self type already
-    // carries them.
+    // `impl<T> ToTokens for W<T> where T: Clone` would give a `Display` impl with no bound
+    // on `T`, and a body that needs one. The type generics are not needed, since the self
+    // type already carries them.
     let (impl_generics, _ty_generics, where_clause) = parsed.generics.split_for_impl();
 
     // `ToString` lives in `alloc` and is re-exported by `std`. Naming `::std` puts the impl
@@ -124,10 +122,10 @@ fn from_to_tokens(parsed: &ItemImpl, trait_path: &syn::Path) -> TokenStream2 {
 
             impl #impl_generics ::core::fmt::Display for #ty #where_clause {
                 fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
-                    // `f.pad` rather than writing straight out, so width, fill, alignment
-                    // and precision behave the way a reader expects of any Display. A
-                    // TokenStream's own Display ignores them, so delegating to it dropped
-                    // `{:>10}` on the floor.
+                    // `f.pad` and not a straight write, so width, fill, alignment and
+                    // precision behave the way they do on any other Display. A
+                    // TokenStream's own Display ignores all of them, so delegating to it
+                    // would lose a `{:>10}` entirely.
                     f.pad(&__derive_display_alloc::string::ToString::to_string(
                         &#trait_path::to_token_stream(self),
                     ))
